@@ -1,17 +1,22 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const morgan = require("morgan");
 
 const notFoundMiddleware = require("./middlewares/not-found");
 const errorMiddleware = require("./middlewares/error");
 const authRoute = require("./routes/auth-route");
+const carRoute = require("./routes/car-route");
 
 const app = express();
 
 app.use(cors());
+app.use(morgan("dev"));
 app.use(express.json());
+app.use(express.static("public"));
 
 app.use("/auth", authRoute);
+app.use("/", carRoute);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);

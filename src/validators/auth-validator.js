@@ -2,10 +2,9 @@ const Joi = require("joi");
 
 const registerSchema = Joi.object({
   username: Joi.string()
-    .pattern(/^[a-zA-Z0-9]{6,30}$/)
+    .pattern(/^[a-zA-Z0-9]{5,30}$/)
     .trim()
     .required(),
-  email: Joi.string().trim(),
   password: Joi.string()
     .pattern(/^[a-zA-z0-9]{6,30}$/)
     .trim()
@@ -15,7 +14,6 @@ const registerSchema = Joi.object({
     .trim()
     .required()
     .strip(),
-  phone: Joi.string().pattern(/^[0-9]{10}$/),
 });
 exports.registerSchema = registerSchema;
 
