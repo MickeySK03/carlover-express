@@ -11,6 +11,15 @@ exports.register = async (req, res, next) => {
       error.statusCode = 400;
       return next(error);
     }
+
+    const existUsername = await prisma.user.findUnique({
+      where: {
+        username: value.username,
+      },
+    });
+    if (existUsername) {
+      return next(createError("username already use", 400));
+    }
     value.password = await bcrypt.hash(value.password, 12);
     const user = await prisma.user.create({
       data: value,

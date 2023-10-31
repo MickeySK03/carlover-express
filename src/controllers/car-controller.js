@@ -3,10 +3,15 @@ const { upload } = require("../utils/cloudinary-service");
 const createError = require("../utils/create-error");
 const fs = require("fs/promises");
 const { checkCarIdSchema } = require("../validators/car-validator");
+const { RESERVED } = require("../config/constants");
 
 exports.getAllCar = async (req, res, next) => {
   try {
-    const car = await prisma.car.findMany({});
+    const car = await prisma.car.findMany({
+      where: {
+        isReserve: false,
+      },
+    });
     console.log(car);
     res.status(200).json({ car });
   } catch (err) {
@@ -198,6 +203,138 @@ exports.updateSellCar = async (req, res, next) => {
       data: data,
     });
     res.status(200).json({ message: "update car", updateCar });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.reserveCar = async (req, res, next) => {
+  try {
+    const { userPhone } = req.body;
+    const { carId } = req.params;
+    const data = { userId: req.user.id };
+
+    const reservedCheck = await prisma.car.findUnique({
+      where: {
+        id: +carId,
+        isReserve: true,
+      },
+    });
+    if (reservedCheck) {
+      return next(createError("car already booked", 400));
+    }
+    console.log(userPhone);
+    const reserveCar = await prisma.reserveCar.create({
+      data: {
+        status: RESERVED,
+        userPhone: userPhone,
+        userId: data.userId,
+        carId: +carId,
+      },
+    });
+    await prisma.car.update({
+      where: {
+        id: +carId,
+      },
+      data: {
+        isReserve: true,
+      },
+    });
+
+    res.status(201).json({ message: "reserved success", reserveCar });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.userReservedCar = async (req, res, next) => {
+  try {
+    const userCar = await prisma.reserveCar.findMany({
+      where: {
+        userId: req.user.id,
+        status: RESERVED,
+      },
+      include: {
+        car: {
+          select: {
+            price: true,
+            year: true,
+            color: true,
+            mileage: true,
+            fuelType: true,
+            transmission: true,
+            location: true,
+            image: true,
+            description: true,
+            reservePrice: true,
+            isReserve: true,
+            brand: true,
+            model: true,
+            seat: true,
+            driveTrain: true,
+          },
+        },
+      },
+    });
+    res.status(200).json({ userCar });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.adminReservedCar = async (req, res, next) => {
+  try {
+    const adminCar = await prisma.reserveCar.findMany({
+      include: {
+        car: {
+          select: {
+            price: true,
+            year: true,
+            color: true,
+            mileage: true,
+            fuelType: true,
+            transmission: true,
+            location: true,
+            image: true,
+            description: true,
+            reservePrice: true,
+            isReserve: true,
+            brand: true,
+            model: true,
+            seat: true,
+            driveTrain: true,
+          },
+        },
+      },
+    });
+    res.status(200).json({ adminCar });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.adminCancelReserve = async (req, res, next) => {
+  try {
+    const { carId } = req.params;
+    const cancelReserve = await prisma.car.update({
+      where: {
+        id: +carId,
+      },
+      data: {
+        isReserve: false,
+      },
+    });
+    const cancelCar = await prisma.reserveCar.findFirst({
+      where: {
+        carId: +carId,
+      },
+    });
+    await prisma.reserveCar.delete({
+      where: {
+        id: cancelCar.id,
+      },
+    });
+    res.status(200).json({ message: "cancel success", cancelReserve });
   } catch (err) {
     next(err);
   }

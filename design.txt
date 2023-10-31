@@ -1,6 +1,6 @@
 REGISTER
 POST /auth/REGISTER
-BODY username, password, confirmPassword, phone
+BODY username, password, confirmPassword
 RESPONSE
 201 for Create { accessToken: String } ex. { accessToken: '' }, user:{id:Number, username: String}
 400 { message: String , username: true}
