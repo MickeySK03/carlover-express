@@ -49,11 +49,15 @@ exports.login = async (req, res, next) => {
       },
     });
     if (!user) {
-      return next(createError("invalid credential", 400));
+      return next(
+        createError("username or password you entered is incorrect", 400)
+      );
     }
     const isMatch = await bcrypt.compare(value.password, user.password);
     if (!isMatch) {
-      return next(createError("invalid credential", 400));
+      return next(
+        createError("username or password you entered is incorrect", 400)
+      );
     }
     const payload = { userId: user.id };
     const accessToken = jwt.sign(

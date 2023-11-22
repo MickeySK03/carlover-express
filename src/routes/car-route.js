@@ -31,10 +31,17 @@ router.patch(
 router.post(
   "/bookcar/:carId",
   authenticateMiddleware,
+  uploadMiddleware.single("image"),
   carController.reserveCar
 );
 
 router.get("/usercar", authenticateMiddleware, carController.userReservedCar);
+
+router.get(
+  "/userPendingCar",
+  authenticateMiddleware,
+  carController.userPendingCar
+);
 
 router.get(
   "/admincar",
@@ -48,6 +55,20 @@ router.patch(
   authenticateMiddleware,
   permissionMiddleware,
   carController.adminCancelReserve
+);
+
+router.get(
+  "/adminPendingCar",
+  authenticateMiddleware,
+  permissionMiddleware,
+  carController.adminPendingCar
+);
+
+router.patch(
+  "/editStatus/:carId",
+  authenticateMiddleware,
+  permissionMiddleware,
+  carController.adminConfirm
 );
 
 module.exports = router;

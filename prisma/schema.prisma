@@ -62,6 +62,7 @@ model ReserveCar {
   userPhone String
   createAt  DateTime      @default(now())
   status    ReserveStatus
+  image     String
   userId    Int
   user      User          @relation(fields: [userId], references: [id])
   carId     Int
@@ -70,7 +71,9 @@ model ReserveCar {
 
 enum ReserveStatus {
   Reserved
+  Pending
   NotReserve
+  Cancel
 }
 
 enum Role {
