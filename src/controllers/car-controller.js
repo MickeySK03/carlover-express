@@ -156,9 +156,6 @@ exports.updateSellCar = async (req, res, next) => {
     if (req.file) {
       data.image = await upload(req.file.path);
     }
-    if (!req.file) {
-      return next(createError("image is require", 400));
-    }
     if (price) {
       data.price = price;
     }
