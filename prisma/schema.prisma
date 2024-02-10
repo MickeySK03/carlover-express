@@ -33,7 +33,6 @@ model Car {
   seat         String
   location     String
   description  String
-  image        String
   createAt     DateTime      @default(now())
   isReserve    Boolean       @default(false)
   reservePrice String

@@ -11,8 +11,12 @@ exports.getAllCar = async (req, res, next) => {
       where: {
         isReserve: false,
       },
+      include: {
+        imageCar: {
+          select: { image: true },
+        },
+      },
     });
-    console.log(car);
     res.status(200).json({ car });
   } catch (err) {
     next(err);
@@ -36,13 +40,16 @@ exports.postSellCar = async (req, res, next) => {
       driveTrain,
       seat,
     } = req.body;
-    if (!req.file) {
+    if (!req.files) {
       return next(createError("image is require", 400));
     }
-    const data = {};
-    if (req.file) {
-      data.image = await upload(req.file.path);
+    const uploadImages = [];
+    for (const file of req.files.image) {
+      const images = await upload(file.path);
+      uploadImages.push(images);
     }
+
+    const data = {};
     if (price) {
       data.price = price;
     }
@@ -82,15 +89,42 @@ exports.postSellCar = async (req, res, next) => {
     if (seat) {
       data.seat = seat;
     }
-    const post = await prisma.car.create({
+    const carProduct = await prisma.car.create({
       data: data,
     });
+
+    const carImages = uploadImages.map((file) => {
+      return {
+        image: file,
+        carId: carProduct.id,
+      };
+    });
+
+    await prisma.imageCar.createMany({
+      data: carImages,
+    });
+
+    const post = await prisma.car.findMany({
+      where: {
+        isReserve: false,
+      },
+      include: {
+        imageCar: true,
+      },
+    });
+
     res.status(201).json({ message: "post sell car created", post });
   } catch (err) {
     next(err);
   } finally {
-    if (req.file) {
-      fs.unlink(req.file.path);
+    if (req.files.image) {
+      for (const file of req.files?.image) {
+        fs.unlink(file.path, (err) => {
+          if (err) {
+            return next(createError("cannot delete", 400));
+          }
+        });
+      }
     }
   }
 };
@@ -98,10 +132,16 @@ exports.postSellCar = async (req, res, next) => {
 exports.getCarById = async (req, res, next) => {
   try {
     const { carId } = req.params;
-    console.log(carId);
     const detailCar = await prisma.car.findUnique({
       where: {
         id: +carId,
+      },
+      include: {
+        imageCar: {
+          where: {
+            carId: +carId,
+          },
+        },
       },
     });
     res.status(200).json({ detailCar });
@@ -124,6 +164,11 @@ exports.deleteSellCar = async (req, res, next) => {
     if (!existCar) {
       return next(createError("cannot delete", 400));
     }
+    await prisma.imageCar.deleteMany({
+      where: {
+        carId: existCar.id,
+      },
+    });
     await prisma.car.delete({
       where: {
         id: existCar.id,
@@ -151,11 +196,10 @@ exports.updateSellCar = async (req, res, next) => {
       model,
       driveTrain,
       seat,
+      deleteImage,
     } = req.body;
+
     const data = {};
-    if (req.file) {
-      data.image = await upload(req.file.path);
-    }
     if (price) {
       data.price = price;
     }
@@ -196,12 +240,64 @@ exports.updateSellCar = async (req, res, next) => {
       data.seat = seat;
     }
     const { carId } = req.params;
-    const updateCar = await prisma.car.update({
+
+    if (data) {
+      await prisma.car.update({
+        where: {
+          id: +carId,
+        },
+        data: data,
+      });
+    }
+
+    if (req.files.image) {
+      const uploadImages = [];
+      for (const file of req.files.image) {
+        const images = await upload(file.path);
+        uploadImages.push(images);
+      }
+      const carImages = uploadImages.map((file) => {
+        return {
+          image: file,
+          carId: +carId,
+        };
+      });
+      await prisma.imageCar.createMany({
+        data: carImages,
+      });
+    }
+
+    if (deleteImage) {
+      if (typeof deleteImage === "string") {
+        await prisma.imageCar.delete({
+          where: {
+            id: +deleteImage,
+          },
+        });
+      } else {
+        for (const key in deleteImage) {
+          await prisma.imageCar.delete({
+            where: {
+              id: +deleteImage[key],
+            },
+          });
+        }
+      }
+    }
+
+    const updateCar = await prisma.car.findUnique({
       where: {
         id: +carId,
       },
-      data: data,
+      include: {
+        imageCar: {
+          where: {
+            carId: +carId,
+          },
+        },
+      },
     });
+
     res.status(200).json({ message: "update car", updateCar });
   } catch (err) {
     next(err);

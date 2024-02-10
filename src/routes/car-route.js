@@ -11,7 +11,7 @@ router.post(
   "/sellcar",
   authenticateMiddleware,
   permissionMiddleware,
-  uploadMiddleware.single("image"),
+  uploadMiddleware.fields([{ name: "image", maxCount: 5 }]),
   carController.postSellCar
 );
 router.get("/allcars/:carId", authenticateMiddleware, carController.getCarById);
@@ -21,11 +21,12 @@ router.delete(
   permissionMiddleware,
   carController.deleteSellCar
 );
+
 router.patch(
   "/allcars/:carId",
   authenticateMiddleware,
   permissionMiddleware,
-  uploadMiddleware.single("image"),
+  uploadMiddleware.fields([{ name: "image", maxCount: 5 }]),
   carController.updateSellCar
 );
 router.post(

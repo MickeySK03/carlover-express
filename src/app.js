@@ -10,7 +10,9 @@ const carRoute = require("./routes/car-route");
 
 const app = express();
 
+/*cors ให้ server กำหนดสิทธิ์การเข้าถึงทรัพยากรได้ เมื่อwebsiteมี domain อื่นเข้ามาrequest */
 app.use(cors());
+/*morgan = middleware เก็บ log จาก http request ติดตามการrequest */
 app.use(morgan("dev"));
 app.use(express.json());
 
