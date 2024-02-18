@@ -4,6 +4,8 @@ const createError = require("../utils/create-error");
 const fs = require("fs/promises");
 const { checkCarIdSchema } = require("../validators/car-validator");
 const { RESERVED, PENDING } = require("../config/constants");
+const { image } = require("../config/cloudinary");
+const { log } = require("console");
 
 exports.getAllCar = async (req, res, next) => {
   try {
@@ -142,9 +144,22 @@ exports.getCarById = async (req, res, next) => {
             carId: +carId,
           },
         },
+        reserveCar: { select: { image: true, status: true } },
       },
     });
-    res.status(200).json({ detailCar });
+
+    const findWishList = await prisma.wishListCar.findFirst({
+      where: {
+        userId: req.user.id,
+        carId: +carId,
+      },
+    });
+    let isWishList = false;
+    if (findWishList) {
+      isWishList = true;
+    }
+
+    res.status(200).json({ detailCar, isWishList });
   } catch (err) {
     next(err);
   }
@@ -344,7 +359,69 @@ exports.reserveCar = async (req, res, next) => {
       },
     });
 
+    await prisma.wishListCar.deleteMany({
+      where: {
+        carId: +carId,
+      },
+    });
+
     res.status(201).json({ message: "reserved success", reserveCar });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.userWishListCar = async (req, res, next) => {
+  try {
+    // const data = {};
+    const { carId } = req.params;
+    // data.carId = +carId
+    // data.userId= req.user.id
+
+    const findWishList = await prisma.wishListCar.findFirst({
+      where: {
+        userId: req.user.id,
+        carId: +carId,
+      },
+    });
+
+    let wishListStatus = "";
+
+    if (findWishList) {
+      await prisma.wishListCar.delete({
+        where: {
+          id: findWishList.id,
+          userId: findWishList.userId,
+          carId: findWishList.carId,
+        },
+      });
+      wishListStatus = "wishlist delete";
+    } else if (!findWishList) {
+      await prisma.wishListCar.create({
+        data: {
+          userId: req.user.id,
+          carId: +carId,
+        },
+      });
+      wishListStatus = "wishlist success";
+    }
+    res.status(201).json({ message: wishListStatus });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getWishListByUser = async (req, res, next) => {
+  try {
+    const wishList = await prisma.wishListCar.findMany({
+      where: {
+        userId: req.user.id,
+      },
+      include: {
+        car: { include: { imageCar: true } },
+      },
+    });
+    res.status(200).json({ wishList });
   } catch (err) {
     next(err);
   }
@@ -358,27 +435,12 @@ exports.userReservedCar = async (req, res, next) => {
       },
       include: {
         car: {
-          select: {
-            price: true,
-            year: true,
-            color: true,
-            mileage: true,
-            fuelType: true,
-            transmission: true,
-            location: true,
-            image: true,
-            description: true,
-            reservePrice: true,
-            isReserve: true,
-            brand: true,
-            model: true,
-            seat: true,
-            driveTrain: true,
-          },
+          include: { imageCar: { select: { image: true } } },
         },
         user: { select: { username: true } },
       },
     });
+
     res.status(200).json({ userCar });
   } catch (err) {
     next(err);
@@ -398,7 +460,6 @@ exports.adminReservedCar = async (req, res, next) => {
             fuelType: true,
             transmission: true,
             location: true,
-            image: true,
             description: true,
             reservePrice: true,
             isReserve: true,
@@ -406,6 +467,7 @@ exports.adminReservedCar = async (req, res, next) => {
             model: true,
             seat: true,
             driveTrain: true,
+            imageCar: true,
           },
         },
         user: {
@@ -465,7 +527,6 @@ exports.userPendingCar = async (req, res, next) => {
             fuelType: true,
             transmission: true,
             location: true,
-            image: true,
             description: true,
             reservePrice: true,
             isReserve: true,
@@ -473,6 +534,7 @@ exports.userPendingCar = async (req, res, next) => {
             model: true,
             seat: true,
             driveTrain: true,
+            imageCar: true,
           },
         },
         user: { select: { username: true } },
@@ -500,7 +562,6 @@ exports.adminPendingCar = async (req, res, next) => {
             fuelType: true,
             transmission: true,
             location: true,
-            image: true,
             description: true,
             reservePrice: true,
             isReserve: true,
@@ -508,6 +569,7 @@ exports.adminPendingCar = async (req, res, next) => {
             model: true,
             seat: true,
             driveTrain: true,
+            imageCar: true,
           },
         },
         user: {

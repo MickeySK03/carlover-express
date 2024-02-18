@@ -36,6 +36,18 @@ router.post(
   carController.reserveCar
 );
 
+router.post(
+  "/wishlist/:carId",
+  authenticateMiddleware,
+  carController.userWishListCar
+);
+
+router.get(
+  "/wishlist",
+  authenticateMiddleware,
+  carController.getWishListByUser
+);
+
 router.get("/usercar", authenticateMiddleware, carController.userReservedCar);
 
 router.get(
