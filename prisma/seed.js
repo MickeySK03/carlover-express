@@ -69,77 +69,77 @@ const imagecar = [
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1706864265/ofpetybytyfza3ggutly.jpg",
-    carId: "1",
+    carId: 1,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1706864265/sapix2mlievcprvo5slg.jpg",
-    carId: "1",
+    carId: 1,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1706864265/bl6sxlbkpa3o9bhkamtb.jpg",
-    carId: "1",
+    carId: 1,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1706864265/wfgezzdw6r0v3wdch0h8.jpg",
-    carId: "1",
+    carId: 1,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1706864265/ahz9d1pl7grgaz2ivxbe.jpg",
-    carId: "1",
+    carId: 1,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1706864757/d8adozl09o7xyfj6x9qv.jpg",
-    carId: "2",
+    carId: 2,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1706864766/uqlgsrzoi4rcut4gc9ow.jpg",
-    carId: "2",
+    carId: 2,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1706864767/bbzr0i2ymodrfnezf0p1.jpg",
-    carId: "2",
+    carId: 2,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1706864767/mxnpecv7sxnljiwexopm.jpg",
-    carId: "2",
+    carId: 2,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1706864767/ylwi0uc424hmm3haksns.jpg",
-    carId: "2",
+    carId: 2,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1707104054/g3qqoy6tvsrz3jtiwysf.jpg",
-    carId: "3",
+    carId: 3,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1707104055/kpgf9rfdurea7xalbqg7.jpg",
-    carId: "3",
+    carId: 3,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1707104057/gdtptcrtzkeg10v4pzwb.jpg",
-    carId: "3",
+    carId: 3,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1707104059/qhy3hdzkyl8sp4jvybbs.jpg",
-    carId: "3",
+    carId: 3,
   },
   {
     image:
       "https://res.cloudinary.com/dhr78bot3/image/upload/v1707104061/mg9p4cchq8smjthritvu.jpg",
-    carId: "3",
+    carId: 3,
   },
 ];
 
